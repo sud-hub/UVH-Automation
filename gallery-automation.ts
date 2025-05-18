@@ -432,7 +432,7 @@ async function main() {
   const page = await context.newPage();
 
   // Initial navigation
-  await page.goto("https://hack.airawat-mobility.in/game");
+  await page.goto("https://hack.airawat-mobility.in");
 
   // Manual login wait
   console.log("🛑 Waiting 40 seconds so you can log in manually...");
