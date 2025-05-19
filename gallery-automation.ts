@@ -317,7 +317,7 @@ async function performAnnotationFlow(page: Page) {
         if (isVisible) {
           await tick.click();
           ticksClicked++;
-          await page.waitForTimeout(100); // slight delay
+          await page.waitForTimeout(1000); // slight delay
         }
       } catch (err) {
         console.warn("⚠️ Failed to click tick:", err);
