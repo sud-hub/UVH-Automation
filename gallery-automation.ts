@@ -62,7 +62,7 @@ async function countLabels(page: Page): Promise<{ bicycles: number, others: numb
       return { bicycles, others };
     });
     
-    console.log(`📊 Label counts - Bicycles: ${labelCounts.bicycles}, Others: ${labelCounts.others}`);
+    // console.log(`📊 Label counts - Bicycles: ${labelCounts.bicycles}, Others: ${labelCounts.others}`);
     return labelCounts;
   } catch (err) {
     console.warn("⚠️ Failed to count labels:", err);
