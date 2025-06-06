@@ -70,6 +70,49 @@ async function countLabels(page: Page): Promise<{ bicycles: number, others: numb
   }
 }
 
+async function replaceLabels(page: Page, searchLabel: string, replaceWithLabel: string) {
+  console.log(`🔄 Looking for any ‘${searchLabel}’ labels to replace with ‘${replaceWithLabel}’…`);
+
+  const labelLocator = () => page.locator(
+    '#gallery-view span[data-tour="box-label"] span',
+    { hasText: searchLabel }
+  );
+
+  const initialCount = await labelLocator().count();
+  console.log(`📊 Found ${initialCount} ‘${searchLabel}’ label(s).`);
+
+  while (true) {
+    const label = labelLocator().first();
+    const count = await label.count();
+
+    if (count === 0) {
+      console.log(`✅ No more ‘${searchLabel}’ labels found.`);
+      break;
+    }
+
+    console.log(`🔍 Clicking the first “${searchLabel}” label…`);
+    await label.click();
+
+    const dropdown = page.locator(
+      'div[style*="position: absolute"][style*="z-index: 1000"]'
+    ).first();
+
+    try {
+      await dropdown.waitFor({ state: 'visible', timeout: 3000 });
+
+      const option = dropdown.locator(`div:has-text("${replaceWithLabel}")`);
+      await option.click();
+
+      console.log(`✅ Replaced with “${replaceWithLabel}”`);
+    } catch (error) {
+      console.warn(`⚠️ Could not find replacement option “${replaceWithLabel}” in dropdown.`);
+      break;
+    }
+  }
+
+  console.log(`✅ All ‘${searchLabel}’ labels (if any) have been switched to “${replaceWithLabel}.”`);
+}
+
 async function performAnnotationFlow(page: Page) {
   // Step 1: Click Gallery View - Using the successful selector from the logs
   try {
@@ -102,7 +145,13 @@ async function performAnnotationFlow(page: Page) {
     }
   }
 
+  // Step 1.5: replace some obviously wrong labels 
+  await replaceLabels(page, "Bicycle", "2-Wheeler");
+  await replaceLabels(page, "Others", "Auto");
+  await replaceLabels(page, "Van", "MUV");
+
   // Step 2: Count labels and check for special condition
+  // ring bell if something left
   const labelCounts = await countLabels(page);
   
   if (labelCounts.bicycles > 0 || labelCounts.others > 0) {
@@ -151,16 +200,8 @@ async function performAnnotationFlow(page: Page) {
   // const waitTime = Math.max(totalBoxes, 1); // At least 1 second, or number of boxes
   let waitTime = Math.max(totalBoxes, 1); // At least 1 second, or number of boxes
 
-  if (waitTime >= 20) {
-    waitTime += 20;
-  }
-  else if (waitTime >= 10) {
-    waitTime += 10;
-  } else if (waitTime >= 5) {
-    waitTime += 5;
-  } else {
-    waitTime += 2; // Minimum additional wait time
-  }
+  waitTime *= 1.5;
+  
   console.log(`⏳ Waiting ${waitTime} seconds before clicking submit (based on ${totalBoxes} boxes)...`);
   await page.waitForTimeout(waitTime * 1000);
 
