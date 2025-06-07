@@ -281,7 +281,7 @@ async function main() {
     headless: false,
     slowMo: 100 // Increased slow down for more stability
   });
-  const context = await browser.newContext();
+  const context = await browser.newContext({ viewport: null });
   const page = await context.newPage();
 
   // Initial navigation
